@@ -51,7 +51,6 @@ net setupNet(net currNet){
         else
             currNet.name = temp;
         i++;
-        cout << temp << endl;
     }
     
     return currNet;
@@ -79,8 +78,8 @@ void readInput(string file){
                 stringstream obs;
                 obs << tp;
                 obs >> OBSph >> OBSxs >> OBSys;
-                OBSx.push_back(stoi(OBSys));
-                OBSy.push_back(stoi(OBSxs));
+                OBSy.push_back(stoi(OBSys));
+                OBSx.push_back(stoi(OBSxs));
             }
             else{
                 string w, h;
@@ -93,7 +92,6 @@ void readInput(string file){
                 h = tp;
                 boardW = stoi(w);
                 boardH = stoi(h);
-                cout << boardW << endl;
             }
         }
         testFile.close();
@@ -111,17 +109,29 @@ void initBoard(string fileName){
         board[i] = new int[boardW];
     }
     
-    for(int i = 0; i < OBSx.size(); i++){
-        board[OBSx[i] - 1][OBSy[i] - 1] = -1;
-    }
     for(int i = 0; i < boardH; i++){
         for(int j = 0; j < boardW; j++){
-            if(board[i][j] != -1)
             board[i][j] = 0;
+        }
+    }
+    
+    for(int i = 0; i < OBSx.size(); i++){
+        board[OBSy[i] - 1][OBSx[i] - 1] = -1;
+    }
+    
+    for(int i = 0; i < nets.size(); i++){
+        for(int j = 0; j < nets[i].metal.size(); j++){
+            board[nets[i].pinY[j] - 1][nets[i].pinX[j] - 1] = i + 1;
+        }
+    }
+    
+    for(int i = 0; i < boardH; i++){
+        for(int j = 0; j < boardW; j++){
             cout << board[i][j] << "   ";
         }
-        cout <<" New Line "<< endl;
+        cout << endl;
     }
+    
 }
 
 int main(){
