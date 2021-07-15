@@ -5,7 +5,7 @@
 #include <sstream>
 using namespace std;
 
-int *viaCount;
+int viaCount;
 int **board;
 int boardW;
 int boardH;
@@ -19,6 +19,7 @@ struct net{
     vector<int> pinY;
 };
 vector<net> nets;
+
 
 net setupNet(net currNet){
     stringstream netLineSS;
@@ -80,6 +81,9 @@ void readInput(string file){
                 obs >> OBSph >> OBSxs >> OBSys;
                 OBSy.push_back(stoi(OBSys));
                 OBSx.push_back(stoi(OBSxs));
+            }
+            else if ((firstWord.find("1") != string::npos) || (firstWord.find("2") != string::npos)){
+                
             }
             else{
                 string w, h;
