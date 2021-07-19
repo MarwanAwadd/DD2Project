@@ -1,6 +1,8 @@
 package com.company;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class Main {
 
     static final int row[] = {-1, 0, 0, 1};
     static final int col[] = {0, -1, 1, 0};
-    static boolean flag;
+    static ArrayList<Boolean> flag;
 
     static boolean isValid(boolean visited[][], int row, int col){
         return (row >= 0) && (row < boardH) && (col >= 0) && (col < boardW) && (board[row][col] == 0) && !visited[row][col];
@@ -98,12 +100,13 @@ public class Main {
         }
     }
 
-    public static void shortestPath(boolean[][] visited, ArrayList<pin> checked, int sX, int sY, int dX, int dY, int sM, int dM, int minDest, int counter){
-        if(flag){
+    public static void shortestPath(boolean[][] visitedPath, boolean[][] visited, ArrayList<pin> checked, int sX, int sY, int dX, int dY, int sM, int dM, int minDest, int counter, int flagI){
+        if(flag.get(flagI)){
             return;
         }
         if (sX == dX && sY == dY && sM == dM){
-            flag = true;
+            flag.set(flagI, true);
+            checked.add(new pin(sM, sX, sY, counter));
             return;
         }
         else if (counter > minDest){ // not the shortest path
@@ -111,47 +114,51 @@ public class Main {
             return;
         }
         else{
-            if ((sX - 1 >= 0) && (visited[sY][sX - 1]))
+            if ((sX - 1 >= 0) && (visited[sY][sX - 1]) && !(visitedPath[sY][sX - 1]) && !flag.get(flagI))
             {
-//                visitedPath[sY][sX] = true;
-                shortestPath(visited, checked, sX - 1, sY, dX, dY, sM, dM, minDest, counter+1 );
-                if (flag) {
+                visitedPath[sY][sX] = true;
+                shortestPath(visitedPath, visited, checked, sX - 1, sY, dX, dY, sM, dM, minDest, counter+1, flagI);
+                if (flag.get(flagI)) {
                     checked.add(new pin(sM, sX, sY, counter));
                 }
             }
 
-            if ((sY - 1 >= 0) && (visited[sY - 1][sX]))
+            if ((sY - 1 >= 0) && (visited[sY - 1][sX]) && !(visitedPath[sY - 1][sX]) && !flag.get(flagI))
             {
-//                visitedPath[sY][sX] = true;
-                shortestPath(visited, checked, sX, sY - 1, dX, dY, sM, dM, minDest, counter+1);
-                if (flag)
+                visitedPath[sY][sX] = true;
+                shortestPath(visitedPath, visited, checked, sX, sY - 1, dX, dY, sM, dM, minDest, counter+1, flagI);
+                if (flag.get(flagI))
                     checked.add(new pin(sM, sX, sY, counter));
             }
 
-            if ((sX + 1 < boardW) && (visited[sY][sX + 1]))
+            if ((sX + 1 < boardW) && (visited[sY][sX + 1]) && !(visitedPath[sY][sX + 1]) && !flag.get(flagI))
             {
-//                visitedPath[sY][sX] = true;
-                shortestPath(visited, checked, sX + 1, sY, dX, dY, sM, dM, minDest, counter+1);
-                if (flag)
+                visitedPath[sY][sX] = true;
+                shortestPath(visitedPath, visited, checked, sX + 1, sY, dX, dY, sM, dM, minDest, counter+1, flagI);
+                if (flag.get(flagI))
                     checked.add(new pin(sM, sX, sY, counter));
             }
 
-            if ((sY + 1 < boardH) && (visited[sY + 1][sX]))
+            if ((sY + 1 < boardH) && (visited[sY + 1][sX]) && !(visitedPath[sY + 1][sX]) && !flag.get(flagI))
             {
-//                visitedPath[sY][sX] = true;
-                shortestPath(visited, checked, sX, sY + 1, dX, dY, sM, dM, minDest, counter+1);
-                if (flag)
+                visitedPath[sY][sX] = true;
+                shortestPath(visitedPath, visited, checked, sX, sY + 1, dX, dY, sM, dM, minDest, counter+1, flagI);
+                if (flag.get(flagI))
                     checked.add(new pin(sM, sX, sY, counter));
             }
+
+            visitedPath[sY][sX] = false;
         }
     }
 
-    static void BFS(int boardTemp[][],int sX, int sY, int dX, int dY){
+
+    static ArrayList<pin> BFS(int sX, int sY, int dX, int dY, int netI, int flagI){
+        int[][] boardTemp = new int[boardH][boardW];
         boolean[][] visited = new boolean[boardH][boardW];
         Queue<pin> q = new ArrayDeque<>();
         ArrayList<pin> checked = new ArrayList<>();
 
-        int i = sX; int j = sY;
+        int i = sY; int j = sX;
         q.add(new pin(1, i, j, 0));
         int minDist = Integer.MAX_VALUE;
 
@@ -176,39 +183,72 @@ public class Main {
                 }
             }
         }
-        int xxxx = 0;
         for(int m = 0; m < boardH; m++){
             for(int n = 0; n < boardW; n++){
                 if(visited[m][n]){
                     pin p = new pin(1, n, m, boardTemp[m][n]);
                     checked.add(p);
-//                    System.out.println(p.x + "  " + p.y + "  " + p.metal + "  " + p.dist);
-                    xxxx++;
                 }
             }
         }
         System.out.println(minDist);
 
-        ArrayList<pin> path = new ArrayList<>();
-        flag = false;
         boolean[][] visitedPath = new boolean[boardH][boardW];
-        shortestPath(visited, path, sX, sY, dX, dY, 1, 1, minDist, 0);
-        System.out.println("please");
+
+        flag.set(flagI, false);
+        ArrayList<pin> path = new ArrayList<>();
+        shortestPath(visitedPath, visited, path, sX, sY, dX, dY, 1, 1, minDist, 0, flagI);
+
         for(int p = 0; p < path.size(); p++){
-            board[path.get(p).y][path.get(p).x] = 1;
-            System.out.println(path.get(p).x + "  " + path.get(p).y);
+            board[path.get(p).y][path.get(p).x] = netI;
         }
-        board[dY][dX] = 1;
+        board[dY][dX] = netI;
 
-        System.out.println(path.size());
+        return path;
+    }
 
+    public static void runNet(net n, int netI){
+        ArrayList<pin> pathPin = new ArrayList<>();
+
+        for(int i = 0; i < n.pinX.size() - 1; i++){
+//            board[n.pinY.get(i)][n.pinX.get(i)] = 0;
+            flag.add(false);
+            pathPin.addAll(BFS(n.pinX.get(i) - 1, n.pinY.get(i), n.pinX.get(i + 1), n.pinY.get(i + 1), netI + 1, flag.size() - 1));
+        }
+        writeBack(netI, pathPin);
+    }
+
+    public static void writeBack(int n, ArrayList<pin> path){
+
+        String out = new String("net" + String.valueOf(n + 1) + ": ");
+        for(int i = 0; i < path.size(); i++){
+            String temp = new String("(" + String.valueOf(path.get(i).metal) + "," + String.valueOf(path.get(i).x) + "," + String.valueOf(path.get(i).y) + ")");
+            out = out + temp + " ";
+        }
+
+        try {
+            FileWriter myWriter = new FileWriter("Results/result1.txt");
+            myWriter.write(out);
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void runAll(){
+        for(int i = 0; i < nets.size(); i++){
+            runNet(nets.get(i), i);
+        }
     }
 
     public static void main(String[] args) {
 	init("test1.txt");
-	int[][] temp = new int[boardH][boardW];
 
-	BFS(temp, 3, 4, 6, 6);
+    flag = new ArrayList<Boolean>();
+
+    runAll();
 
 	GridGraphics gg = new GridGraphics();
 	gg.Draw(board, boardW, boardH);
