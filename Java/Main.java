@@ -1,8 +1,5 @@
 package com.company;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -39,13 +36,13 @@ public class Main {
     static final int col[] = {0, -1, 1, 0};
     static ArrayList<Boolean> flag;
 
-	
-//Checks if a cell is a possible part of the path from source to destination by checking if its within the grid boundaries, if it is an empty cell or if it was visited before or not
+
+    //Checks if a cell is a possible part of the path from source to destination by checking if its within the grid boundaries, if it is an empty cell or if it was visited before or not
     static boolean isValid(boolean visited[][], int row, int col){
         return (row >= 0) && (row < boardH) && (col >= 0) && (col < boardW) && (board[row][col] == 0) && !visited[row][col];
     }
 
-//Systematically takes the data from the tect file line by line and puts it in the location in the program that it is required to be in
+    //Systematically takes the data from the tect file line by line and puts it in the location in the program that it is required to be in
     static void readInput(String file){
         try {
             File myObj = new File("Tests/"+file);
@@ -89,7 +86,7 @@ public class Main {
         }
     }
 
-//Initializes board with 0s for empty cells and -1 for cells that contain an obstacle
+    //Initializes board with 0s for empty cells and -1 for cells that contain an obstacle
     static void init(String file){
         readInput(file);
         board = new int[boardH][boardW];
@@ -104,8 +101,8 @@ public class Main {
             }
         }
     }
-	
-//Recursive function that takes all the visited cells of the board with their distances from the source and runs recursively to check if the current path the program
+
+    //Recursive function that takes all the visited cells of the board with their distances from the source and runs recursively to check if the current path the program
 //is on is the correct 1, if the counter exceeds the minimum distance from src to dest then the program goes back to its previous cell and tries a new direction.
 //Once found, a flag is to be set true and return the function and upon every return from the path, the cells data of the path is stored in an ArrayList of pin objects.
     public static void shortestPath(boolean[][] visitedPath, boolean[][] visited, ArrayList<pin> checked, int sX, int sY, int dX, int dY, int sM, int dM, int minDest, int counter, int flagI){
@@ -159,7 +156,7 @@ public class Main {
         }
     }
 
-//A BFS algorithm that iteratively checks every possible value from source to destination while marking it if its visited or not and marking the distance each cell
+    //A BFS algorithm that iteratively checks every possible value from source to destination while marking it if its visited or not and marking the distance each cell
 //from the source and goes in every possible direction by putting all cell values in a queue if the cell is within bounds or is not checked before or is not an obstacle
 //which then stops when it reaches the destination cell to produce the minimum distance between source and dest which is used in the above function to produce a path
     static ArrayList<pin> BFS(int sX, int sY, int dX, int dY, int netI, int flagI){
@@ -216,8 +213,8 @@ public class Main {
 
         return path;
     }
-	
-//function that takes a net from the list of nets and runs each of its pins where one pin is src and the next is the destination and in the next iteration, the previous
+
+    //function that takes a net from the list of nets and runs each of its pins where one pin is src and the next is the destination and in the next iteration, the previous
 //destination is now the source and a new pin is the destination.
     public static void runNet(net n, int netI){
         ArrayList<pin> pathPin = new ArrayList<>();
@@ -228,7 +225,7 @@ public class Main {
         }
         writeBack(netI, pathPin);
     }
-//function that takes values from the list containing pins of the path from all paths in a net and writes them to text file of our choosing
+    //function that takes values from the list containing pins of the path from all paths in a net and writes them to text file of our choosing
     public static void writeBack(int n, ArrayList<pin> path){
 
         String out = new String("net" + String.valueOf(n + 1) + ": ");
@@ -238,9 +235,11 @@ public class Main {
         }
 
         try {
-            FileWriter myWriter = new FileWriter("Results/result1.txt");
-            myWriter.write(out);
-            myWriter.close();
+            BufferedWriter output;
+            output = new BufferedWriter(new FileWriter("Results/result5.txt", true));  //clears file every time
+            output.newLine();
+            output.append(out);
+            output.close();
             System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -248,7 +247,7 @@ public class Main {
         }
     }
 
-//runs runNet but for every net in the program
+    //runs runNet but for every net in the program
     public static void runAll(){
         for(int i = 0; i < nets.size(); i++){
             runNet(nets.get(i), i);
@@ -256,15 +255,13 @@ public class Main {
     }
 
     public static void main(String[] args) {
-	init("test1.txt");
+        init("test5.txt");
 
-    flag = new ArrayList<Boolean>();
+        flag = new ArrayList<Boolean>();
 
-    runAll();
-	//creates graphics
-	GridGraphics gg = new GridGraphics();
-	gg.Draw(board, boardW, boardH);
-
-
+        runAll();
+        //creates graphics
+        GridGraphics gg = new GridGraphics();
+        gg.Draw(board, boardW, boardH);
     }
 }
